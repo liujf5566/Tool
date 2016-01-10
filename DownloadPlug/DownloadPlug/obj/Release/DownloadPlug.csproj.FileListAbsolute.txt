@@ -1,5 +1,0 @@
-F:\Code\GitHub\Tool\DownloadPlug\DownloadPlug\bin\Release\DownloadPlug.exe.config
-F:\Code\GitHub\Tool\DownloadPlug\DownloadPlug\bin\Release\DownloadPlug.exe
-F:\Code\GitHub\Tool\DownloadPlug\DownloadPlug\bin\Release\DownloadPlug.pdb
-F:\Code\GitHub\Tool\DownloadPlug\DownloadPlug\obj\Release\DownloadPlug.exe
-F:\Code\GitHub\Tool\DownloadPlug\DownloadPlug\obj\Release\DownloadPlug.pdb
