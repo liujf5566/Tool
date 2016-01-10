@@ -1,0 +1,2 @@
+1、Aostar.MVP.Main.exe和Aostar.MVP.Update.exe程序要放到安装程序的根目录下。下载服务(Aostar.MVP.DownloadService.exe)放到"updateSer"目录下
+2、更新不同的应用程序只需要修改：“Aostar.MVP.Main.exe.config”和“Aostar.MVP.Update.exe.config”和“Aostar.MVP.DownloadService.exe.config”配置文件中的“客户端程序(ClientApp)”节点即可。
