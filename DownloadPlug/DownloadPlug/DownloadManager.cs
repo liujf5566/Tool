@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -23,11 +24,17 @@ namespace DownloadPlug
         /// </summary>
         private static readonly string _downloadDir;
         private static readonly StreamWriter _sw;
+        /// <summary>
+        /// 是否启用Http下载
+        /// </summary>
+        private static readonly bool _bHttp;
         static DownloadManager()
         {
             _downloadDir = AppDomain.CurrentDomain.BaseDirectory;
             _sw = new StreamWriter(Path.Combine(_downloadDir, "DownloadPlug.log"), true);
             _sw.AutoFlush = true;
+            string strHttp = ConfigurationManager.AppSettings["EnableHttp"];
+            bool.TryParse(strHttp, out _bHttp);
         }
         public DownloadManager(string url, string fileName)
         {
@@ -45,19 +52,29 @@ namespace DownloadPlug
         {
             try
             {
-                //按照服务端配置的格式解析下载地址
-                string[] ipAddress = Regex.Split(_url, "##", RegexOptions.IgnoreCase);
-                string ip = ipAddress[0];
-                string userName = null;
-                string pw = null;
-                if (ipAddress.Length > 1)
+                //使用Http下载
+                if (_bHttp)
                 {
-                    userName = ipAddress[1];
-                    pw = ipAddress[2];
+                    HttpHelper.Download(_url, _downloadDir, _fileName);
+                    _sw.Write(string.Format("下载完成。\nhttpurl:{0};fileName:{1};downloadDir:{2}", _url, _fileName, _downloadDir));
                 }
-                FTPHelper ftp = new FTPHelper(userName, pw);
-                ftp.Download(ip, _downloadDir, _fileName);
-                _sw.Write(string.Format("下载完成。\nftpurl:{0};fileName:{1};downloadDir:{2}", ip, _fileName, _downloadDir));
+                //使用FTP下载
+                else
+                {
+                    //按照服务端配置的格式解析下载地址
+                    string[] ipAddress = Regex.Split(_url, "##", RegexOptions.IgnoreCase);
+                    string ip = ipAddress[0];
+                    string userName = null;
+                    string pw = null;
+                    if (ipAddress.Length > 1)
+                    {
+                        userName = ipAddress[1];
+                        pw = ipAddress[2];
+                    }
+                    FTPHelper ftp = new FTPHelper(userName, pw);
+                    ftp.Download(ip, _downloadDir, _fileName);
+                    _sw.Write(string.Format("下载完成。\nftpurl:{0};fileName:{1};downloadDir:{2}", ip, _fileName, _downloadDir));
+                }
             }
             catch (Exception ex)
             {

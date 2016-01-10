@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Net;
 
@@ -11,10 +12,16 @@ namespace Aostar.MVP.DownloadService
     {
         private readonly string _userName;
         private readonly string _pw;
+        /// <summary>
+        /// 是否启用被动模式
+        /// </summary>
+        private readonly bool _bPassive;
         public FTPHelper(string userName, string pw)
         {
             _userName = userName;
             _pw = pw;
+            string strPassive = ConfigurationManager.AppSettings["EnablePassive"];
+            bool.TryParse(strPassive, out _bPassive);
         }
         /// <summary>
         /// 下载文件
@@ -39,6 +46,7 @@ namespace Aostar.MVP.DownloadService
                     ftpURL += fileName;
                 }
                 FtpWebRequest reqFTP = (FtpWebRequest)FtpWebRequest.Create(ftpURL);
+                reqFTP.UsePassive = _bPassive;
                 reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
                 reqFTP.UseBinary = true;
                 reqFTP.Credentials = new NetworkCredential(_userName, _pw);
