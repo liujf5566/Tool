@@ -23,18 +23,20 @@ namespace DownloadPlug
         /// 下载路径
         /// </summary>
         private static readonly string _downloadDir;
-        private static readonly StreamWriter _sw;
+        private static readonly StreamWriter _sw;       
         /// <summary>
         /// 是否启用Http下载
         /// </summary>
-        private static readonly bool _bHttp;
+        private static readonly bool _enabledHttp;
+
         static DownloadManager()
-        {
+        {            
+            string strHttp = ConfigurationManager.AppSettings["EnabledHttp"];
+            bool.TryParse(strHttp, out _enabledHttp);
+
             _downloadDir = AppDomain.CurrentDomain.BaseDirectory;
             _sw = new StreamWriter(Path.Combine(_downloadDir, "DownloadPlug.log"), true);
             _sw.AutoFlush = true;
-            string strHttp = ConfigurationManager.AppSettings["EnableHttp"];
-            bool.TryParse(strHttp, out _bHttp);
         }
         public DownloadManager(string url, string fileName)
         {
@@ -53,12 +55,12 @@ namespace DownloadPlug
             try
             {
                 //使用Http下载
-                if (_bHttp)
+                if (_enabledHttp)
                 {
                     HttpHelper.Download(_url, _downloadDir, _fileName);
-                    _sw.Write(string.Format("下载完成。\nhttpurl:{0};fileName:{1};downloadDir:{2}", _url, _fileName, _downloadDir));
+                    _sw.WriteLine("下载完成，ftpurl:{0};fileName:{1};downloadDir:{2}", _url, _fileName, _downloadDir);
                 }
-                //使用FTP下载
+                //使用Ftp下载
                 else
                 {
                     //按照服务端配置的格式解析下载地址
@@ -70,21 +72,32 @@ namespace DownloadPlug
                     {
                         userName = ipAddress[1];
                         pw = ipAddress[2];
+                        //解密
+                        pw = EncryptHelper.UNEncryptByBase64(pw);
+#if DEBUG
+                    MessageBox.Show(string.Format("解密后：{0}", pw));
+#endif
                     }
                     FTPHelper ftp = new FTPHelper(userName, pw);
                     ftp.Download(ip, _downloadDir, _fileName);
-                    _sw.Write(string.Format("下载完成。\nftpurl:{0};fileName:{1};downloadDir:{2}", ip, _fileName, _downloadDir));
+                    _sw.WriteLine("下载完成，ftpurl:{0};fileName:{1};downloadDir:{2}", ip, _fileName, _downloadDir);
                 }
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show("下载失败！\n请检测ftp服务是否异常。！");
-                _sw.Write(string.Format("静默下载出错！错误信息:{0}", ex.Message));
+#if DEBUG
+                 MessageBox.Show("下载失败！\n请检测ftp服务是否异常。！");
+#endif
+                _sw.WriteLine("{0}执行静默下载{1}出错！错误信息:{2}", DateTime.Now.ToString(), _fileName, ex.Message);
 
             }
             finally
             {
-                _sw.Close();
+                if (_sw != null)
+                {
+                    _sw.Close();
+                }
                 Application.Exit();
             }
         }

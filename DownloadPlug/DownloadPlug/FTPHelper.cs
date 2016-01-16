@@ -12,25 +12,22 @@ namespace DownloadPlug
     {
         private readonly string _userName;
         private readonly string _pw;
-        /// <summary>
-        /// 是否启用被动模式
-        /// </summary>
-        private readonly bool _bPassive;
+        private readonly bool _enabledPassive;//是否启用被动模式
+
         public FTPHelper(string userName, string pw)
         {
+            string strPassive = ConfigurationManager.AppSettings["EnabledPassive"];
+            bool.TryParse(strPassive, out _enabledPassive);
             _userName = userName;
             _pw = pw;
-            string strPassive = ConfigurationManager.AppSettings["EnablePassive"];
-            bool.TryParse(strPassive, out _bPassive);
         }
         /// <summary>
         /// 下载文件
         /// </summary>
         /// <param name="ftpURL">ftp服务器路径</param>
         /// <param name="fileDir">存储下载文件的本地目录</param>
-        /// <param name="fileName">文件名</param>
-        /// <param name="size">文件大小</param>
-        public void Download(string ftpURL, string fileDir, string fileName, long size = 0)
+        /// <param name="fileName">文件名</param>        
+        public void Download(string ftpURL, string fileDir, string fileName)
         {
             FtpWebResponse ftpResponse = null;
             Stream responseStream = null;
@@ -46,7 +43,7 @@ namespace DownloadPlug
                     ftpURL += fileName;
                 }
                 FtpWebRequest reqFTP = (FtpWebRequest)FtpWebRequest.Create(ftpURL);
-                reqFTP.UsePassive = _bPassive;
+                reqFTP.UsePassive = _enabledPassive;
                 reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
                 reqFTP.UseBinary = true;
                 reqFTP.Credentials = new NetworkCredential(_userName, _pw);
@@ -62,10 +59,6 @@ namespace DownloadPlug
                 {
                     outputStream.Write(buffer, 0, readCount);
                     readCount = responseStream.Read(buffer, 0, bufferSize);
-                    if (size != 0)
-                    {
-
-                    }
                 }
             }
             catch (Exception)

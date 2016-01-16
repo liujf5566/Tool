@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DownloadManager.cs" />
+    <Compile Include="EncryptHelper.cs" />
     <Compile Include="FTPHelper.cs" />
     <Compile Include="HttpHelper.cs" />
     <Compile Include="Program.cs" />

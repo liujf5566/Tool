@@ -14,7 +14,7 @@ namespace DownloadPlug
         /// </summary>
         /// <param name="httpURL">http服务器路径</param>
         /// <param name="fileDir">存储下载文件的本地目录</param>
-        /// <param name="fileName">文件名</param>   
+        /// <param name="fileName">文件名</param>        
         public static void Download(string httpURL, string fileDir, string fileName)
         {
             WebResponse httpResponse = null;
